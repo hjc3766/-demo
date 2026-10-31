@@ -67,4 +67,6 @@ jobs:
           PY
 
       - name: 构建产物
-        run: ./scripts/build.sh
+        # 用 `bash <脚本>` 而不是 `./scripts/build.sh`：不依赖文件执行位，
+        # 避免 Windows 贡献者提交时丢失可执行位导致 Permission denied
+        run: bash ./scripts/build.sh
