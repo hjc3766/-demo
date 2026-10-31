@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>建议服务 MVP · 公共设施报修与资产协同</title>
+<style>
+  :root{
+    --bg:#0f1720; --panel:#17212b; --panel2:#1e2a36; --line:#2b3a49;
+    --fg:#e6edf3; --dim:#9fb0c0; --accent:#4aa3ff; --ok:#3fb950;
+    --warn:#d29922; --bad:#f85149; --must:#ff7b72;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.6 "Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+       background:var(--bg);color:var(--fg)}
+  header{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;
+         align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel)}
+  header h1{font-size:16px;margin:0;font-weight:600}
+  .tag{font-size:12px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);color:var(--dim)}
+  .tag.ok{color:var(--ok);border-color:#1d4429}
+  .tag.bad{color:var(--bad);border-color:#5c1f1c}
+  .tag.warn{color:var(--warn);border-color:#4a3a12}
+  .banner{margin:10px 18px;padding:9px 12px;border-radius:6px;font-size:13px;display:none}
+  .banner.show{display:block}
+  .banner.warn{background:#2b2410;border:1px solid #4a3a12;color:#e3b341}
+  .banner.bad{background:#2d1618;border:1px solid #5c1f1c;color:#ff7b72}
+  main{display:grid;grid-template-columns:320px 1fr 320px;gap:14px;padding:14px 18px;align-items:start}
+  @media(max-width:1100px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .card h2{margin:0;padding:9px 12px;font-size:13px;color:var(--dim);font-weight:600;
+           border-bottom:1px solid var(--line);background:var(--panel2)}
+  .card .body{padding:12px}
+  .row{display:flex;gap:6px;margin-bottom:8px}
+  input,select,textarea,button{font:inherit;background:#0d1520;color:var(--fg);
+    border:1px solid var(--line);border-radius:5px;padding:6px 8px}
+  input[type=text]{flex:1;min-width:0}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:#12385e;border-color:#1f6feb}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .list{max-height:70vh;overflow:auto}
+  .item{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px}
+  .item:hover{background:var(--panel2)}
+  .item.sel{background:#14304d}
+  .item .muted{color:var(--dim);font-size:12px}
+  .cand{border:1px solid var(--line);border-radius:7px;padding:10px;margin-bottom:10px;background:var(--panel2)}
+  .cand .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .cand .no{font-weight:600}
+  .pill{font-size:11px;padding:1px 7px;border-radius:9px;border:1px solid var(--line);color:var(--dim)}
+  .pill.high{color:var(--ok);border-color:#1d4429}
+  .pill.mid{color:var(--warn);border-color:#4a3a12}
+  .pill.low{color:var(--bad);border-color:#5c1f1c}
+  .kv{font-size:12px;color:var(--dim);margin-top:6px}
+  .kv b{color:var(--fg);font-weight:500}
+  .reasons{margin:6px 0 0;padding-left:16px;font-size:12px;color:#b9c9d8}
+  .pending{margin-top:6px;font-size:12px;color:#e3b341}
+  .gate{border-left:3px solid var(--must);background:#2a1a1c;padding:9px 11px;
+        border-radius:0 6px 6px 0;margin:10px 0;font-size:13px}
+  .gate .t{font-weight:600;color:var(--must)}
+  .kv2{font-size:12px;color:var(--dim);margin-top:5px}
+  .mono{font-family:Consolas,Menlo,monospace;font-size:11.5px;color:#9fb0c0;
+        white-space:pre-wrap;word-break:break-all;max-height:230px;overflow:auto;
+        background:#0b1219;border:1px solid var(--line);border-radius:5px;padding:8px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--dim);font-weight:500}
+  .mini{width:100%;height:190px;background:#0b1219;border:1px solid var(--line);border-radius:6px}
+  .legend{font-size:11px;color:var(--dim);margin-top:6px}
+  .sec{margin-bottom:14px}
+  .note{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>建议服务 MVP · 公共设施报修与资产协同</h1>
+  <span class="tag" id="t-chain">哈希链：检查中</span>
+  <span class="tag" id="t-sync">同步：—</span>
+  <span class="tag" id="t-degrade">只读降级：否</span>
+  <span class="tag" id="t-count">建议：0</span>
+  <span class="tag" id="t-llm">模型：规则基线</span>
+</header>
+
+<div class="banner" id="banner"></div>
+
+<main>
+  <!-- 左：工单与操作 -->
+  <div>
+    <div class="card sec">
+      <h2>生成建议</h2>
+      <div class="body">
+        <div class="row">
+          <input type="text" id="biz" placeholder="业务编号，如 WO-202600003">
+          <button class="primary" id="btn-gen">生成</button>
+        </div>
+        <div class="row">
+          <select id="actor">
+            <option value="CO-0001">维修协调员 CO-0001</option>
+            <option value="OP-0001">巡查工作人员 OP-0001</option>
+            <option value="AP-0001">资产平台工程师 AP-0001</option>
+            <option value="SA-0001">设施安全监督员 SA-0001</option>
+            <option value="CS-0001">社区服务代表 CS-0001</option>
+            <option value="DI-0001">设施运营主任 DI-0001</option>
+          </select>
+          <button id="btn-reload">刷新列表</button>
+        </div>
+        <div class="note">
+          本服务只产出建议，不写任何业务系统；派单须由授权岗位在原系统确认。
+          切换上方岗位可观察服务端字段裁剪与权限差异。
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>建议记录（按业务编号去重）</h2>
+      <div class="list" id="sugg-list"><div class="body muted">加载中…</div></div>
+    </div>
+  </div>
+
+  <!-- 中：建议单 -->
+  <div>
+    <div class="card sec">
+      <h2>建议单</h2>
+      <div class="body" id="panel"><div class="muted">左侧选择或生成一条建议。</div></div>
+    </div>
+    <div class="card sec">
+      <h2>候选分布示意（SVG，无外部依赖）</h2>
+      <div class="body">
+        <svg class="mini" id="map" viewBox="0 0 300 190"></svg>
+        <div class="legend">● 锚点中心　○ 候选 1　○ 候选 2　○ 候选 3　▢ 锚定单元边界</div>
+        <div class="note">生产环境使用 Leaflet / MapLibre 渲染（方案 §4.1），MVP 为零依赖降级实现。</div>
+      </div>
+    </div>
+    <div class="card sec">
+      <h2>建议单原文（可复制留痕）</h2>
+      <div class="body"><div class="mono" id="cardtext">—</div></div>
+    </div>
+  </div>
+
+  <!-- 右：治理与指标 -->
+  <div>
+    <div class="card sec">
+      <h2>人工动作</h2>
+      <div class="body">
+        <div class="row">
+          <select id="act">
+            <option value="accept">采纳建议</option>
+            <option value="amend">人工改动</option>
+            <option value="reject">退回</option>
+            <option value="pause">暂停（现场核对）</option>
+            <option value="dispatch">派工确认（在原系统执行）</option>
+            <option value="repair">维修完成</option>
+            <option value="acceptance">验收</option>
+            <option value="ledger">台账更新</option>
+          </select>
+        </div>
+        <div class="row"><input type="text" id="note" placeholder="说明 / 依据（写入留痕）"></div>
+        <div class="row"><button class="primary" id="btn-act" disabled>记录动作</button></div>
+        <div class="note">动作以新记录写入，人工改动与签核人成对留痕；原记录不被覆盖。</div>
+      </div>
+    </div>
+
+    <div class="card sec">
+      <h2>交接提醒（五要件 + 接手确认）</h2>
+      <div class="body">
+        <div class="row"><input type="text" id="recv" placeholder="接手人，如 维修二组-张工"></div>
+        <div class="row"><button id="btn-ho">发起交接</button></div>
+        <div class="row"><button id="btn-hc">接手人确认（闭环）</button></div>
+        <div class="kv" id="ho-state">—</div>
+        <div class="note">仅发送通知不算闭环；接手人确认才算完成。超时升级阈值默认未配置，系统只提示不自动升级。</div>
+      </div>
+    </div>
+
+    <div class="card sec">
+      <h2>过程指标（方案 §12.4）</h2>
+      <div class="body"><div id="metrics" class="kv">—</div></div>
+    </div>
+
+    <div class="card">
+      <h2>链路重建（f45）</h2>
+      <div class="body">
+        <div class="row"><button id="btn-audit">重建本单</button></div>
+        <div class="mono" id="audit">—</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const api = async (path, opt={}) => {
+  const r = await fetch(path, {headers:{'Content-Type':'application/json'}, ...opt});
+  const t = await r.text();
+  try { return JSON.parse(t); } catch(e) { return {error:t}; }
+};
+let current = null;
+
+function showBanner(msg, cls){
+  const b = $('#banner');
+  if(!msg){ b.className='banner'; b.textContent=''; return; }
+  b.className = 'banner show ' + (cls||'warn'); b.textContent = msg;
+}
+
+async function loadStatus(){
+  const s = await api('/api/status');
+  const chain = s['哈希链'] || {};
+  $('#t-chain').textContent = '哈希链：' + (chain.ok ? '完整' : '断裂');
+  $('#t-chain').className = 'tag ' + (chain.ok ? 'ok' : 'bad');
+  $('#t-degrade').textContent = '只读降级：' + (s['只读降级'] ? '是' : '否');
+  $('#t-degrade').className = 'tag ' + (s['只读降级'] ? 'bad' : 'ok');
+  const c = (s['连接器']||[]).find(x=>!x.healthy);
+  $('#t-sync').textContent = '同步：' + (c ? c.connector+' 异常' : '正常');
+  $('#t-sync').className = 'tag ' + (c ? 'warn' : 'ok');
+  $('#t-count').textContent = '建议：' + (s['建议数']||0);
+  $('#t-llm').textContent = '模型：' + (s['模型版本']||'—');
+  if(s['全局提示']) showBanner(s['全局提示'],'warn');
+  else if(s['只读降级']) showBanner('哈希链校验失败，服务已自动进入只读降级：不再产出新建议，请安全监督员复核。','bad');
+  else showBanner(null);
+}
+
+async function loadList(){
+  const d = await api('/api/suggestions?limit=40');
+  const box = $('#sugg-list');
+  if(!d.items || !d.items.length){ box.innerHTML='<div class="body muted">尚无建议记录。</div>'; return; }
+  const seen = new Set(); const rows=[];
+  for(const s of d.items){ if(seen.has(s.business_no)) continue; seen.add(s.business_no); rows.push(s); }
+  box.innerHTML = rows.map(s=>{
+    const p = s.payload||{};
+    const rt = p.result_type||'?';
+    const cls = rt==='must_human'?'bad':(rt==='suggest'?'ok':'warn');
+    return `<div class="item" data-biz="${s.business_no}" data-sid="${s.suggestion_id}">
+      <div>${s.business_no} <span class="tag ${cls}">${rt}</span></div>
+      <div class="muted">${s.created_at} · ${(p.suggestion_result&&p.suggestion_result.extraction_summary)||''}</div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('.item').forEach(el=>{
+    el.onclick = ()=> select(el.dataset.sid, el.dataset.biz);
+  });
+}
+
+async function select(sid, biz){
+  $('#biz').value = biz||'';
+  const d = await api('/api/suggestion/'+sid+'?actor_id='+$('#actor').value);
+  if(d.error){ showBanner(d.error,'bad'); return; }
+  current = d;
+  render(d);
+  const ho = await api('/api/handover/'+biz);
+  $('#ho-state').innerHTML = ho.state==='none' ? '尚无交接记录。'
+    : `状态：<b>${ho.state==='closed'?'已闭环':'已通知未闭环'}</b>　接手人：${ho.receiver||'（未指定）'}` +
+      (ho.wait_minutes!=null?`　等待 ${ho.wait_minutes} 分钟`:'');
+}
+
+function render(d){
+  const p = d.payload || d;
+  const res = p.suggestion_result||{};
+  let h = '';
+  h += `<div class="kv"><b>建议编号</b> ${p.suggestion_id||d.suggestion_id||''}　<b>业务编号</b> ${p.business_no}<br>
+        <b>资料版本</b> ${p.source_snapshot_version||''}<br>
+        <b>规则版本</b> ${p.rule_version||''}　<b>模型版本</b> ${p.model_version||''}<br>
+        <b>抽取要素</b> ${res.extraction_summary||''}<br>
+        <b>行政锚定</b> ${res.anchor ? res.anchor.name+'（'+res.anchor.code+'）' : '未锚定'}<br>
+        <b>置信分档</b> <span class="pill ${res.confidence_band}">${res.confidence_band}</span>
+        <span class="pill">召回 ${res.recall_count||0}</span></div>`;
+
+  if(p.result_type==='must_human'){
+    h += `<div class="gate"><div class="t">必须转人工：${p.result_type}</div>`;
+    for(const g of (p.gates||[])){
+      h += `<div class="kv2">触发原因：${g.gate} ${g.label}</div>
+            <div class="kv2">说明：${g.detail}</div>
+            <div class="kv2">接手人：${g.receiver||'（未指定，须由规则指定，不得默认指派）'}</div>`;
+    }
+    h += `</div>`;
+  }
+  if(p.result_type==='insufficient'){
+    h += `<div class="gate"><div class="t">无候选</div><div class="kv2">未召回到可用候选，转人工处理。</div></div>`;
+  }
+
+  const cs = res.candidates||[];
+  cs.forEach((c,i)=>{
+    const pill = res.confidence_band;
+    h += `<div class="cand">
+      <div class="hd"><span class="no">候选 ${i+1}</span><span class="pill ${pill}">分档 ${pill} · 分值 ${c.score}</span></div>
+      <div class="kv"><b>${c.asset_code}</b> / ${c.asset_pk}　类别：${c.asset_category}</div>
+      <div class="kv">坐标：${c.lng!=null?`(${c.lng}, ${c.lat})`:'（按授权范围已裁剪）'}
+        ${c.dist_m!=null?`　距锚点 ${c.dist_m} m`:''}</div>
+      <ul class="reasons">${(c.reasons||[]).map(r=>`<li>${r.detail}</li>`).join('')}</ul>
+      ${(c.pending_fields&&c.pending_fields.length)?`<div class="pending">待确认：${c.pending_fields.join('；')}</div>`:''}
+    </div>`;
+  });
+  $('#panel').innerHTML = h;
+  $('#cardtext').textContent = d.card_text || '';
+  $('#btn-act').disabled = false;
+  drawMap(res);
+}
+
+function drawMap(res){
+  const svg = $('#map');
+  const anc = res.anchor;
+  const cs = (res.candidates||[]).filter(c=>c.lng!=null);
+  if(!cs.length){
+    svg.innerHTML='<text x="12" y="30" fill="#9fb0c0" font-size="11">无候选坐标（可能按授权范围已裁剪）</text>';
+    return;
+  }
+  const ancPt = anc ? [anc.centroid_lng, anc.centroid_lat] : null;
+  const poly = (anc && anc.polygon && anc.polygon.length) ? anc.polygon : null;
+  const pts = cs.map(c=>[c.lng,c.lat]);
+  if(ancPt) pts.push(ancPt);
+  if(poly) poly.forEach(p=>pts.push([p[0],p[1]]));
+  const lngs = pts.map(p=>p[0]), lats = pts.map(p=>p[1]);
+  const mnx=Math.min(...lngs), mxx=Math.max(...lngs), mny=Math.min(...lats), mxy=Math.max(...lats);
+  const W=300,H=190,pad=26;
+  const sx = v => pad + (mxx==mnx?0:(v-mnx)/(mxx-mnx))*(W-2*pad);
+  const sy = v => H-pad - (mxy==mny?0:(v-mny)/(mxy-mny))*(H-2*pad);
+  let s = anc
+    ? `<text x="10" y="15" fill="#9fb0c0" font-size="11">锚定单元：${anc.name}（${anc.code}）</text>`
+    : `<text x="10" y="15" fill="#9fb0c0" font-size="11">未锚定（原文无行政区划线索）· 仅按空间邻近与语义匹配</text>`;
+  // 锚定单元边界（阶段二结果可视化）
+  if(poly){
+    const d = poly.map((p,i)=>`${i?'L':'M'}${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(' ')+' Z';
+    s += `<path d="${d}" fill="rgba(74,163,255,.10)" stroke="#4aa3ff" stroke-width="1" stroke-dasharray="3 2"/>`;
+  }
+  if(ancPt) s += `<circle cx="${sx(ancPt[0]).toFixed(1)}" cy="${sy(ancPt[1]).toFixed(1)}" r="3.5" fill="#4aa3ff"/>`;
+  cs.forEach((c,i)=>{
+    const color = ['3fb950','d29922','f85149'][i]||'9fb0c0';
+    const cx = sx(c.lng).toFixed(1), cy = sy(c.lat).toFixed(1);
+    s += `<circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="#${color}" stroke-width="2"/>`;
+    s += `<text x="${(Number(cx)+7).toFixed(1)}" y="${(Number(cy)-4).toFixed(1)}" fill="#c9d6e2" font-size="9">${c.asset_code}</text>`;
+    // 未锚定时，用资产自身所属行政单元说明候选落点
+    if(!anc && c.location_anchor){
+      s += `<text x="${(Number(cx)+7).toFixed(1)}" y="${(Number(cy)+6).toFixed(1)}" fill="#7d8fa1" font-size="8">${c.location_anchor}</text>`;
+    }
+  });
+  svg.innerHTML = s;
+}
+
+async function loadMetrics(){
+  const m = await api('/api/metrics');
+  if(m.error){ $('#metrics').textContent = m.error; return; }
+  const rows = Object.entries(m).filter(([k])=>!k.includes('分布')).map(([k,v])=>
+    `<tr><th>${k}</th><td>${typeof v==='object'?JSON.stringify(v):v}</td></tr>`).join('');
+  const dist = Object.entries(m['闸门触发分布']||{}).map(([k,v])=>`${k}: ${v}`).join('　');
+  $('#metrics').innerHTML = `<table>${rows}</table>` + (dist?`<div class="note">闸门分布：${dist}</div>`:'');
+}
+
+$('#btn-gen').onclick = async ()=>{
+  const biz = $('#biz').value.trim();
+  if(!biz) return;
+  $('#btn-gen').disabled = true;
+  const d = await api('/api/suggest',{method:'POST',body:JSON.stringify({business_no:biz,actor_id:$('#actor').value})});
+  $('#btn-gen').disabled = false;
+  if(d.error){ showBanner(d.error,'bad'); return; }
+  await loadList(); await select(d.suggestion_id, biz); await loadStatus(); await loadMetrics();
+};
+
+$('#btn-reload').onclick = async ()=>{ await loadList(); await loadStatus(); await loadMetrics(); };
+$('#actor').onchange = async ()=>{ if(current) await select(current.suggestion_id, $('#biz').value.trim()); };
+
+$('#btn-act').onclick = async ()=>{
+  if(!current) return;
+  const d = await api('/api/action',{method:'POST',body:JSON.stringify({
+    suggestion_id: current.suggestion_id, actor_id: $('#actor').value,
+    action: $('#act').value, note: $('#note').value,
+    basis_refs: ['人工复核'], signed_by: $('#actor').value })});
+  if(d.error){ showBanner(d.error,'bad'); return; }
+  showBanner('动作已留痕：'+d.action_id,'warn');
+  $('#note').value='';
+  await loadMetrics(); await select(current.suggestion_id, $('#biz').value.trim());
+};
+
+$('#btn-ho').onclick = async ()=>{
+  const biz = $('#biz').value.trim(); if(!biz) return;
+  const d = await api('/api/handover',{method:'POST',body:JSON.stringify({
+    business_no:biz, actor_id:$('#actor').value, receiver:$('#recv').value})});
+  if(d.error){ showBanner(d.error,'bad'); return; }
+  showBanner('已发起交接（尚未闭环）','warn');
+  await select(current.suggestion_id, biz);
+};
+
+$('#btn-hc').onclick = async ()=>{
+  const biz = $('#biz').value.trim(); if(!biz) return;
+  const d = await api('/api/handover/confirm',{method:'POST',body:JSON.stringify({
+    business_no:biz, actor_id:$('#actor').value})});
+  if(d.error){ showBanner(d.error,'bad'); return; }
+  showBanner('接手人已确认，交接闭环','warn');
+  await select(current.suggestion_id, biz); await loadMetrics();
+};
+
+$('#btn-audit').onclick = async ()=>{
+  const biz = $('#biz').value.trim(); if(!biz) return;
+  const d = await api('/api/audit/'+biz);
+  $('#audit').textContent = JSON.stringify(d,null,2);
+};
+
+(async ()=>{ await loadStatus(); await loadList(); await loadMetrics(); })();
+</script>
+</body>
+</html>

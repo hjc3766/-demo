@@ -1,0 +1,196 @@
+{
+ "type": "FeatureCollection",
+ "name": "yunzhou_divisions",
+ "note": "云州市合成行政区划（五级区划的前三级），仅用于 MVP 演示与离线调试",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320100",
+    "name": "云州市",
+    "level": 1,
+    "parent_code": null,
+    "aliases": "[\"云州\"]",
+    "center": [
+     120.15,
+     30.249
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.125, 30.232], [120.175, 30.232], [120.175, 30.266], [120.125, 30.266]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320102",
+    "name": "城东区",
+    "level": 2,
+    "parent_code": "YZ320100",
+    "aliases": "[\"城东\", \"东区\"]",
+    "center": [
+     120.16,
+     30.256
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.15, 30.25], [120.17, 30.25], [120.17, 30.262], [120.15, 30.262]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320103",
+    "name": "城西区",
+    "level": 2,
+    "parent_code": "YZ320100",
+    "aliases": "[\"城西\", \"西区\"]",
+    "center": [
+     120.138,
+     30.256
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.128, 30.25], [120.148, 30.25], [120.148, 30.262], [120.128, 30.262]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320104",
+    "name": "老城区",
+    "level": 2,
+    "parent_code": "YZ320100",
+    "aliases": "[\"老城\", \"老城区\", \"城中\"]",
+    "center": [
+     120.149,
+     30.2425
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.139, 30.236], [120.159, 30.236], [120.159, 30.249], [120.139, 30.249]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320105",
+    "name": "滨江街道",
+    "level": 2,
+    "parent_code": "YZ320100",
+    "aliases": "[\"滨江\", \"江边\"]",
+    "center": [
+     120.162,
+     30.2425
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.152, 30.236], [120.172, 30.236], [120.172, 30.249], [120.152, 30.249]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320102001",
+    "name": "阳光社区",
+    "level": 3,
+    "parent_code": "YZ320102",
+    "aliases": "[\"阳光\", \"阳光小区\"]",
+    "center": [
+     120.16499999999999,
+     30.256
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.16, 30.25], [120.17, 30.25], [120.17, 30.262], [120.16, 30.262]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320102002",
+    "name": "幸福里社区",
+    "level": 3,
+    "parent_code": "YZ320102",
+    "aliases": "[\"幸福里\", \"幸福小区\"]",
+    "center": [
+     120.155,
+     30.256
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.15, 30.25], [120.16, 30.25], [120.16, 30.262], [120.15, 30.262]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320103001",
+    "name": "江畔社区",
+    "level": 3,
+    "parent_code": "YZ320103",
+    "aliases": "[\"江畔\", \"江畔小区\"]",
+    "center": [
+     120.138,
+     30.253999999999998
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.128, 30.25], [120.148, 30.25], [120.148, 30.258], [120.128, 30.258]]"
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "code": "YZ320104001",
+    "name": "一城社区",
+    "level": 3,
+    "parent_code": "YZ320104",
+    "aliases": "[\"一城\", \"一城社区\"]",
+    "center": [
+     120.149,
+     30.2425
+    ],
+    "source": "self-built-mvp"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     "[[120.139, 30.236], [120.159, 30.236], [120.159, 30.249], [120.139, 30.249]]"
+    ]
+   }
+  }
+ ]
+}

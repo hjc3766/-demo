@@ -1,0 +1,84 @@
+# ---- 运行时数据（含 SQLite 库，绝不入库）----
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite3
+mvp_data/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- 虚拟环境 ----
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ---- 密钥与机密（重要：本仓库只放非机密配置）----
+# 口令、密钥、证书、连接串一律不进仓库。
+# config/default.yaml 只放非机密默认参数（见该文件头部说明）。
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+secrets.yaml
+credentials*.json
+*.keystore
+
+# ---- 测试与覆盖率 ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+
+# ---- 前端 ----
+node_modules/
+*.min.js
+*.map
+
+# ---- 编辑器与 IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---- 日志与临时文件 ----
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak

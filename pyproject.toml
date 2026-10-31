@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asset-suggestion"
+version = "0.1.0"
+description = "公共设施报修与资产协同 · 建议服务 MVP（地标 → 资产编码匹配 + 留痕治理）"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["政数", "公共设施", "资产定位", "建议服务", "append-only", "hash-chain"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+# 运行时零第三方依赖（见 requirements.txt）。
+# 重依赖（PostGIS / pgvector / vLLM / Leaflet）都做成了可替换适配器，
+# 生产切换见 docs/design.md 第 8 节。
+dependencies = []
+
+[project.urls]
+Homepage = "https://example.invalid/asset-suggestion"
+Documentation = "https://example.invalid/asset-suggestion/tree/main/docs"
+
+[project.scripts]
+asset-suggestion = "asset_suggestion.main:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+asset_suggestion = ["core/schema.sql", "web/*.html"]
